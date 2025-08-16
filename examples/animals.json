@@ -1,0 +1,18 @@
+{
+    "caption": "This creative image features three unique animal sculptures: a vibrant LEGO lion, a cool ice penguin, and a flaming eagle. Each animal is crafted from different materials, highlighting artistic diversity and imagination.",
+    "seed": 23443,
+    "segments_info": [
+      {
+        "color": [0, 128, 0],
+        "text": "LEGO Lion: This playful LEGO lion stands proudly with a friendly demeanor, showcasing the joy of building and creativity."
+      },
+      {
+        "color": [128, 128, 0],
+        "text": "Ice penguin: A serene ice sculpture of a penguin captures the bird's calm nature, with intricate details frozen in time."
+      },
+      {
+        "color": [128, 0, 0],
+        "text": "Flaming Eagle: The eagle composed entirely of vibrant orange flames, standing upright with a fierce gaze. Fiery feathers and glowing edges emphasize its mythical, powerful presence."
+      }
+    ]
+  }

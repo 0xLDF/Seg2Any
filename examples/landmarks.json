@@ -1,0 +1,36 @@
+{
+    "caption": "The picture features Italy's Leaning Tower of Pisa on the left, tilting noticeably with its distinct horizontal stripes. The center showcases France's Eiffel Tower, its elegant metal lattice structure reaching upward. On the right stands India's Taj Mahal, with its white marble domes and minarets. In the background, China's Great Wall meanders across the green hill. All landmarks are placed in a harmonious arrangement under a blue sky with scattered clouds.",
+    "seed": 53,
+    "segments_info": [
+        {
+            "color": [
+                0, 128, 128
+            ],
+            "text": "The Leaning Tower of Pisa tilts left, with horizontal stripes."
+        },
+        {
+            "color": [
+                0, 128, 0
+            ],
+            "text": "hill"
+        },
+        {
+            "color": [
+                128, 128, 0
+            ],
+            "text": "The Eiffel Tower has a black iron lattice structure."
+        },
+        {
+            "color": [
+                0, 0, 128
+            ],
+            "text": "The clean Taj Mahal has white marble domes and four minarets."
+        },
+        {
+            "color": [
+                128, 0, 0
+            ],
+            "text": "The Great Wall winds across the hill in the background."
+        }        
+    ]
+}
