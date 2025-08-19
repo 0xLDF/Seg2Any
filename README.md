@@ -50,7 +50,7 @@ pip3 install -r requirements.txt
 
 # The following packages are only required for model evaluation. You could skip them for training or inference deployment.
 pip install qwen-vl-utils
-pip install vllm==0.8.0 --index-url https://download.pytorch.org/whl/cu124
+pip install vllm==0.8.0
 
 mim install mmengine
 mim install "mmcv==2.1.0"
@@ -92,6 +92,10 @@ python infer.py \
 --lora_ckpt_path="./ckpt/sacap_1m/seg2any/checkpoint-20000" \
 --seg_mask_path="./examples"
 ```
+The generated images are as follows, saved in the result directory.
+<p align="center">
+  <img src="assets/infer_result.png" width="90%" height="90%">
+</p>
 
 ## Model training
 
