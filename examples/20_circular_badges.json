@@ -1,0 +1,166 @@
+{
+    "caption": "A series of circular badges with different background colors, each featuring letters, are arranged on a wooden table.",
+    "seed": 105,
+    "segments_info": [
+        {
+            "color": [
+                255,
+                0,
+                0
+            ],
+            "text": "A green circular badge with the letter 'A' on it."
+        },
+        {
+            "color": [
+                34,
+                139,
+                34
+            ],
+            "text": "A red circular badge with the letter 'B' on it."
+        },
+        {
+            "color": [
+                138,
+                43,
+                226
+            ],
+            "text": "A blue circular badge with the letter 'C' on it."
+        },
+        {
+            "color": [
+                240,
+                230,
+                140
+            ],
+            "text": "A yellow circular badge with the letter 'D' on it."
+        },
+        {
+            "color": [
+                240,
+                140,
+                233
+            ],
+            "text": "A purple circular badge with the letter 'E' on it."
+        },
+        {
+            "color": [
+                177,
+                140,
+                240
+            ],
+            "text": "An orange circular badge with the letter 'F' on it."
+        },
+        {
+            "color": [
+                140,
+                155,
+                240
+            ],
+            "text": "A sky blue circular badge with the letter 'G' on it."
+        },
+        {
+            "color": [
+                140,
+                161,
+                240
+            ],
+            "text": "A black circular badge with the letter 'H' on it."
+        },
+        {
+            "color": [
+                140,
+                240,
+                237
+            ],
+            "text": "A pink circular badge with the letter 'I' on it."
+        },
+        {
+            "color": [
+                140,
+                240,
+                155
+            ],
+            "text": "A deep purple circular badge with the letter 'J' on it."
+        },
+        {
+            "color": [
+                177,
+                240,
+                140
+            ],
+            "text": "A bright gold circular badge with the letter 'K' on it."
+        },
+        {
+            "color": [
+                235,
+                240,
+                140
+            ],
+            "text": "A white circular badge with the letter 'L' on it."
+        },
+        {
+            "color": [
+                240,
+                204,
+                140
+            ],
+            "text": "A deep red circular badge with the letter 'M' on it."
+        },
+        {
+            "color": [
+                240,
+                169,
+                140
+            ],
+            "text": "A light red circular badge with the letter 'N' on it."
+        },
+        {
+            "color": [
+                240,
+                151,
+                140
+            ],
+            "text": "A light purple circular badge with the letter 'O' on it."
+        },
+        {
+            "color": [
+                0,
+                0,
+                0
+            ],
+            "text": "A gray circular badge with the letter 'P' on it."
+        },
+        {
+            "color": [
+                161,
+                161,
+                161
+            ],
+            "text": "A bright green circular badge with the letter 'Q' on it."
+        },
+        {
+            "color": [
+                44,
+                44,
+                44
+            ],
+            "text": "A deep green circular badge with the letter 'R' on it."
+        },
+        {
+            "color": [
+                7,
+                255,
+                82
+            ],
+            "text": "A brown circular badge with the letter 'S' on it."
+        },
+        {
+            "color": [
+                92,
+                1,
+                6
+            ],
+            "text": "A deep blue circular badge with the letter 'T' on it."
+        }
+    ]
+}

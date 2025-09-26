@@ -1,0 +1,66 @@
+{
+    "caption": "The picture shows a SpiderMan figure in a dynamic swinging pose against a plain background. He wears a deep green hooded jacket, black sport shorts and red and white AJ sneakers. The pose suggests movement, and the plain background makes the figure stand out. The overall look is cool and fashionable with a sense of action.",
+    "seed": 46,
+    "segments_info": [
+        {
+            "color": [
+                128, 0, 128
+            ],
+            "text": "SpiderMan's head with a red and black mask. It has white eye lenses."
+        },
+        {
+            "color": [
+                0, 128, 128
+            ],
+            "text": "A stylish deep green hooded jacket. The drawstrings are highlighted in red, providing a striking contrast against the dark green fabric. The jacket features a partially open zipper."
+        },
+        {
+            "color": [
+                128, 128, 128
+            ],
+            "text": "Light gray inner clothes."
+        },
+        {
+            "color": [
+                64, 0, 0
+            ],
+            "text": "Black sport shorts, designed for a relaxed fit."
+        },
+        {
+            "color": [
+                192, 0, 0
+            ],
+            "text": "Red tight fitting pant, embodying the classic SpiderMan style."
+        },
+        {
+            "color": [
+                0, 64, 0
+            ],
+            "text": "Red tight fitting pant, embodying the classic SpiderMan style."
+        },
+        {
+            "color": [
+                192, 128, 0
+            ],
+            "text": "Red and white AJ sneakers with black laces. They are stylish and add to the sense of movement."
+        },
+        {
+            "color": [
+                0, 128, 0
+            ],
+            "text": "Red and white AJ sneakers with black laces. They are stylish and add to the sense of movement."
+        },
+        {
+            "color": [
+                128, 128, 0
+            ],
+            "text": "Red gloves. The hands are posed as if swinging."
+        },
+        {
+            "color": [
+                255, 0, 0
+            ],
+            "text": "Red gloves. The hands are posed as if swinging."
+        }        
+    ]
+}

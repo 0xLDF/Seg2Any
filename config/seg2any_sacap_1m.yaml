@@ -1,0 +1,97 @@
+project:
+  tracker_project_name: "seg2any"
+  output_dir: "./ckpt/SACap-1M"
+  logging_dir: "logs"
+  gen_image_dir: "gen_imgs"
+  report_to: "tensorboard" # The integration to report the results and logs to. Supported platforms are `"tensorboard"`, `"wandb"` and `"comet_ml"`. Use `"all"` to report to all integrations.
+
+resolution: &resolution 1024
+cond_scale_factor: &cond_scale_factor 2 # condition_resolution == resolution // cond_scale_factor
+data:
+  train:
+    target: dataset.sacap_1m_dataset.SACap_1M_Dataset
+    params:
+      seg_caption_path: ./data/SACap-1M/annotations/anno_train.parquet
+      image_root: ./data/SACap-1M/raw
+      is_group_bucket: True # When enabled, data is bucketed by text and condition token counts, avoiding compute on padding tokens.
+      cache_root: ./data/SACap-1M/cache/train # Directory where group_bucket.parquet file is stored. Only used when is_group_bucket=True.
+      resolution: *resolution
+      cond_scale_factor: *cond_scale_factor
+  val:
+    target: dataset.sacap_1m_dataset.SACap_1M_Dataset
+    params:
+      seg_caption_path: ./data/SACap-1M/annotations/anno_test.parquet
+      image_root: ./data/SACap-1M/test
+      is_group_bucket: False
+      resolution: *resolution
+      cond_scale_factor: *cond_scale_factor
+
+model:
+  pretrained_model_name_or_path: black-forest-labs/FLUX.1-dev
+
+  attention_mask_method: "hard" # choices: ["hard", "base", "place"]
+  hard_attn_block_range: [19,37] # valid when attention_mask_method == "hard"
+  is_use_cond_token: True # text, image and cond tokens (Entity Contour Map) concatenated into unified sequence
+  is_filter_cond_token: True # drop zero-value condition image tokens
+
+  rank: 64 
+  default_lora_layers: "all-linear-in-dit-blocks" # for text and noisy image branch
+  cond_lora_layers: "regular_expression:(.*x_embedder|.*(?<!single_)transformer_blocks\\.[0-9]+\\.norm1\\.linear|.*(?<!single_)transformer_blocks\\.[0-9]+\\.attn\\.to_k|.*(?<!single_)transformer_blocks\\.[0-9]+\\.attn\\.to_q|.*(?<!single_)transformer_blocks\\.[0-9]+\\.attn\\.to_v|.*(?<!single_)transformer_blocks\\.[0-9]+\\.attn\\.to_out\\.0|.*(?<!single_)transformer_blocks\\.[0-9]+\\.ff\\.net\\.2|.*(?<!single_)transformer_blocks\\.[0-9]+\\.ff\\.net\\.0\\.proj|.*single_transformer_blocks\\.[0-9]+\\.norm\\.linear|.*single_transformer_blocks\\.[0-9]+\\.proj_mlp|.*single_transformer_blocks\\.[0-9]+\\.proj_out|.*single_transformer_blocks\\.[0-9]+\\.attn.to_k|.*single_transformer_blocks\\.[0-9]+\\.attn.to_q|.*single_transformer_blocks\\.[0-9]+\\.attn.to_v|.*single_transformer_blocks\\.[0-9]+\\.attn.to_out)"
+  # for conditon branch, refer to https://github.com/Yuanshi9815/OminiControl
+  use_lora_bias: False
+  gaussian_init_lora: False
+
+  num_inference_steps: 32
+
+  max_sequence_length: 512 
+  regional_max_sequence_length: 50
+
+  weighting_scheme: "none" #  "sigma_sqrt", "logit_normal", "mode", "cosmap", "none"
+  logit_mean: 0 # mean to use when using the `'logit_normal'` weighting scheme.
+  logit_std: 1 # std to use when using the `'logit_normal'` weighting scheme.
+  mode_scale: 1.29 # Scale of mode weighting scheme. Only effective when using the `'mode'` as the `weighting_scheme`.
+
+optimizer:
+  adam_beta1: 0.9
+  adam_beta2: 0.999
+  adam_weight_decay: 1e-2
+  adam_epsilon: 1e-08
+  max_grad_norm: 1
+
+scheduler: 
+  lr_scheduler: "constant" # ["linear","cosine","cosine_with_restarts","polynomial","constant","constant_with_warmup"]
+  lr_warmup_steps: 0
+  lr_num_cycles: 1 # Number of hard resets of the lr in cosine_with_restarts scheduler
+  lr_power: 1 # Power factor of the polynomial scheduler.
+
+trainer:
+  guidance_scale: 1
+  train_batch_size: 4 # Batch size (per device) for the training dataloader
+  
+  learning_rate: 1e-4
+
+  scale_lr: False # Scale the learning rate by the number of GPUs, gradient accumulation steps, and batch size.
+
+  gradient_accumulation_steps: 1
+  gradient_checkpointing: True
+  offload: False
+
+  num_train_epochs: 1
+  max_train_steps: 20000 # Total number of training steps to perform.  If provided, overrides num_train_epochs.
+  num_validation_images: 10 # num of log_validation images
+
+  validation_steps: 2000
+
+  checkpointing_steps: 2000
+  checkpoints_total_limit: 5 # Max number of checkpoints to store.
+
+  allow_tf32: False
+
+eval:
+  num_images_per_prompt: 1
+  guidance_scale: 3.5
+
+dataloader_num_workers: 4
+seed: 42
+mixed_precision: "bf16" #  "no", "fp16", "bf16"
+resume_from_checkpoint: null # resumed from a previous checkpoint. Use a path saved by `--checkpointing_steps`, or `"latest"` to automatically select the last available checkpoint.
