@@ -12,9 +12,9 @@
 <br>
 
 > **Seg2Any: Open-set Segmentation-Mask-to-Image Generation with Precise Shape and Semantic Control**
-> `<br>`
+> <br>
 > [Danfengli](https://github.com/0xLDF), [Hui Zhang](https://huizhang0812.github.io/), Sheng Wang, Jiacheng Li, [Zuxuan Wu](https://zxwu.azurewebsites.net/)
-> `<br>`
+> <br>
 > Fudan University & HiThink Research
 
 <br>
