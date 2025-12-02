@@ -44,3 +44,13 @@ def mask2box(mask):
         y0, y1 = ys.min(), ys.max()
         x0, x1 = xs.min(), xs.max()
     return x0, y0, x1, y1
+
+def get_text_token_len(tokenizer, text):
+    input_ids = tokenizer(
+        text,
+        padding="longest",
+        return_overflowing_tokens=False,
+        return_length=False,
+        return_tensors="pt",
+    ).input_ids
+    return input_ids.shape[-1]  

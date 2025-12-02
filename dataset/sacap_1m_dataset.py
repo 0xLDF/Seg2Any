@@ -11,7 +11,9 @@ from torchvision import transforms
 from PIL import Image
 import pandas as pd
 import pycocotools.mask as mask_util
+from tqdm import tqdm
 from joblib import Parallel, delayed
+from collections import defaultdict
 
 from torch.utils.data import Dataset
 import torch
@@ -19,9 +21,8 @@ import torch
 from transformers import T5Tokenizer,T5TokenizerFast
 
 from src.pipelines import FluxRegionalPipeline
-from utils.utils import mask2box
+from utils.utils import mask2box, get_text_token_len
 from utils.visualizer import Visualizer
-
 
 class SACap_1M_Dataset(Dataset):
     """Dataset for supervised fine-tuning."""
@@ -87,19 +88,25 @@ class SACap_1M_Dataset(Dataset):
         else:
             # Parallel run _compute_token_num function
             num_workers = 24
-            chunk_size = max(1, len(self) // (num_workers * 100)) 
             
-            ids = list(range(len(self)))
-            chunks = [ids[i:i+chunk_size] for i in range(0, len(self), chunk_size)]
-            
-            results = Parallel(n_jobs=num_workers, verbose=10)(
-                delayed(self._compute_token_num)(chunk) 
-                for chunk in chunks
+            results = Parallel(n_jobs=num_workers)(
+                delayed(SACap_1M_Dataset.get_token_num)(
+                    id,
+                    data=self.data,
+                    segm_root=self.segm_root,
+                    resolution=self.resolution,
+                    tokenizer=self.tokenizer,
+                    visualizer=self.visualizer,
+                    cond_transforms=self.cond_transforms,
+                )
+                for id in tqdm(range(len(self)))
             )
-            save_data = {'cond_seq_len':[],'txt_seq_len':[]}
-            for chunk in results:
-                for k in chunk:
-                    save_data[k].extend(chunk[k])
+            # Note: Avoid instance methods here. Parallel pickles the entire 'self', drastically slowing down execution.
+            
+            save_data = defaultdict(list)
+            for res in results:
+                for k in res:
+                    save_data[k].append(res[k])
             
             # save
             result_df = pd.DataFrame(save_data)
@@ -119,74 +126,71 @@ class SACap_1M_Dataset(Dataset):
             
         self.flag = np.array(flags, dtype=np.int64)       
 
-    def _compute_token_num(self, idxs):
+    @staticmethod
+    def get_token_num(
+        idx,
+        images_info,     
+        image_root,            
+        resolution,       
+        tokenizer,        
+        visualizer,       
+        cond_transforms,  
+    ):
         # get valid condition token num after filtering out zero-value condition tokens, and obtain text token num via tokenizer.
+        img_info = images_info.iloc[idx]
+        image_name = img_info['imagename']
+        image_group = img_info.get('image_group', '') 
+        image_path = os.path.join(image_root,image_group,image_name)
+        anno_path = image_path[: image_path.rfind(".")] + ".json"
         
-        chunk_results = {'cond_seq_len':[],'txt_seq_len':[]}
-        for idx in idxs:
-            img_info = self.images_info.iloc[idx]
-            image_name = img_info['imagename']
-            image_group = img_info.get('image_group', '') 
-            image_path = os.path.join(self.image_root,image_group,image_name)
-            anno_path = image_path[: image_path.rfind(".")] + ".json"
-            
-            with open(anno_path, "r", encoding="utf-8") as file:
-                anns = json.load(file)
-            
-            img_w = anns["image"]["width"]
-            img_h = anns["image"]["height"]
-            
-            segments_info = {seg_info['anno_id']:seg_info for seg_info in img_info['segments_info']}
-            
-            label = []
-            
-            txt_seq_len = 0
-            
-            global_caption = img_info['caption']
-            txt_seq_len += self.get_text_token_len(global_caption)
+        with open(anno_path, "r", encoding="utf-8") as file:
+            anns = json.load(file)
         
-            for seg in anns["annotations"]:
-                if seg['id'] in segments_info:
-                    mask = mask_util.decode(seg["segmentation"])==1
-                    label.append(mask)
-                    
-                    regional_caption = segments_info[seg['id']]["caption"]
-                    txt_seq_len += self.get_text_token_len(regional_caption)
-            
-            if len(label) != 0:
-                label = np.stack(label, axis=0) # n,h,w
-                label = torch.from_numpy(label)
-                label = label[None, ...]
-                label = F.interpolate(label.float(), size=self.resolution, mode='nearest-exact')
-                label = label[0, ...].long()  # n,h,w
-                
-                cond_pixel_values = np.zeros([label.shape[-2], label.shape[-1], 3], dtype=np.uint8)
-                cond_pixel_values = self.visualizer.draw_contours(
-                    cond_pixel_values,
-                    label.cpu().numpy(),
-                    thickness=1,
-                    colors=[(255, 255, 255), ] * len(label)
-                )
-                cond_pixel_values = Image.fromarray(cond_pixel_values)
-                cond_pixel_values = self.cond_transforms(cond_pixel_values)
-                
-                valid_cond_token_num =  FluxRegionalPipeline.get_valid_cond_token_num(cond_pixel_values)
-            else:
-                valid_cond_token_num = 0
-            
-            chunk_results['cond_seq_len'].append(valid_cond_token_num)
-            chunk_results['txt_seq_len'].append(txt_seq_len)
-        return chunk_results  
+        img_w = anns["image"]["width"]
+        img_h = anns["image"]["height"]
+        
+        segments_info = {seg_info['anno_id']:seg_info for seg_info in img_info['segments_info']}
+        
+        label = []
+        
+        txt_seq_len = 0
+        
+        global_caption = img_info['caption']
+        txt_seq_len += get_text_token_len(tokenizer, global_caption)
     
-    def get_text_token_len(self,text):
-        input_ids = self.tokenizer(
-            text,
-            padding="longest",
-            return_overflowing_tokens=False,
-            return_length=False,
-            return_tensors="pt",
-        ).input_ids
-        return input_ids.shape[-1]  
+        for seg in anns["annotations"]:
+            if seg['id'] in segments_info:
+                mask = mask_util.decode(seg["segmentation"])==1
+                label.append(mask)
+                
+                regional_caption = segments_info[seg['id']]["caption"]
+                txt_seq_len += get_text_token_len(tokenizer, regional_caption)
+        
+        if len(label) != 0:
+            label = np.stack(label, axis=0) # n,h,w
+            label = torch.from_numpy(label)
+            label = label[None, ...]
+            label = F.interpolate(label.float(), size=resolution, mode='nearest-exact')
+            label = label[0, ...].long()  # n,h,w
+            
+            cond_pixel_values = np.zeros([label.shape[-2], label.shape[-1], 3], dtype=np.uint8)
+            cond_pixel_values = visualizer.draw_contours(
+                cond_pixel_values,
+                label.cpu().numpy(),
+                thickness=1,
+                colors=[(255, 255, 255), ] * len(label)
+            )
+            cond_pixel_values = Image.fromarray(cond_pixel_values)
+            cond_pixel_values = cond_transforms(cond_pixel_values)
+            
+            valid_cond_token_num =  FluxRegionalPipeline.get_valid_cond_token_num(cond_pixel_values)
+        else:
+            valid_cond_token_num = 0
+            
+        return {
+            'cond_seq_len': valid_cond_token_num,
+            'txt_seq_len': txt_seq_len
+        }  
 
     def __getitem__(self, idx):
         img_info = self.images_info.iloc[idx]

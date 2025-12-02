@@ -12,9 +12,9 @@
 <br>
 
 > **Seg2Any: Open-set Segmentation-Mask-to-Image Generation with Precise Shape and Semantic Control**
-> <br>
+> `<br>`
 > [Danfengli](https://github.com/0xLDF), [Hui Zhang](https://huizhang0812.github.io/), Sheng Wang, Jiacheng Li, [Zuxuan Wu](https://zxwu.azurewebsites.net/)
-> <br>
+> `<br>`
 > Fudan University & HiThink Research
 
 <br>
@@ -169,17 +169,9 @@ python prepare_dataset_bucket_map.py config/seg2any_sacap_1m.yaml \
   --data.train.params.cond_scale_factor=2
 ```
 
-> Re-run the script if you change `cond_resolution (resolution // cond_scale_factor)`, because bucket map depends on the exact token count.
+> Note: Re-run the script if you change `cond_resolution (resolution // cond_scale_factor)`, because bucket map depends on the `cond_resolution`.
 
-Pre-compute once bucket map times:
-
-| Dataset    | Resolution | cond\_scale\_factor | Time               |
-| ---------- | ---------- | ------------------- | ------------------ |
-| ADE20K     | 512        | 1                   | $\approx$ 10 min |
-| COCO-Stuff | 512        | 1                   | $\approx$ 10 min |
-| SACap-1M   | 1024       | 2                   | $\approx$ 10 h   |
-
-You can download the pre-built bucket map of SACap-1M from
+To save time, you could download the pre-built bucket map of SACap-1M from
 [huggingface](https://huggingface.co/datasets/0xLDF/SACap-1M/tree/main/cache/train).
 
 ### Launch training
