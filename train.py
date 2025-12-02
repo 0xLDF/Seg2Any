@@ -474,7 +474,7 @@ def main(args):
     
     train_dataloader = torch.utils.data.DataLoader(
         train_dataset,
-        sampler=GroupSampler(train_dataset,samples_per_gpu=args.trainer.train_batch_size),
+        sampler=GroupSampler(train_dataset,samples_per_gpu=args.trainer.train_batch_size * accelerator.num_processes),
         collate_fn=collate_fn,
         batch_size=args.trainer.train_batch_size,
         num_workers=args.dataloader_num_workers,
@@ -590,15 +590,17 @@ def main(args):
         return sigma
     
     image_logs = None
-    for epoch in range(0, args.trainer.num_train_epochs):
+    for epoch in range(first_epoch, args.trainer.num_train_epochs):
+        
+        train_dataloader.set_epoch(epoch)
+        
         if args.resume_from_checkpoint and epoch == first_epoch:
             # Skip steps until we reach the resumed step
             work_dataloader = accelerate.skip_first_batches(train_dataloader,num_batches=resume_step)
         else:
             work_dataloader = train_dataloader
+            
         for step, batch in enumerate(work_dataloader):
-            if epoch < first_epoch:
-                break
             with accelerator.accumulate(flux_transformer):                
                 # vae encode
                 pixel_latents = encode_images(batch["pixel_values"], vae.to(accelerator.device), weight_dtype)

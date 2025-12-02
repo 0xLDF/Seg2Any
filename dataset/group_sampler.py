@@ -3,7 +3,10 @@ import numpy as np
 
 class GroupSampler(Sampler):
 
-    def __init__(self, dataset, samples_per_gpu=1):
+    def __init__(self, dataset, samples_per_gpu=1, seed=0):
+        self.epoch = 0
+        self.seed = seed if seed is not None else 0
+        
         assert hasattr(dataset, 'flag')
         self.dataset = dataset
         self.samples_per_gpu = samples_per_gpu
@@ -29,6 +32,8 @@ class GroupSampler(Sampler):
         print("GroupSampler.num_groups:  ",num_groups)
 
     def __iter__(self): 
+        np.random.seed(self.epoch + self.seed)
+        
         indices = []
         for i, size in self.group_sizes:
             if size == 0:
@@ -59,3 +64,6 @@ class GroupSampler(Sampler):
 
     def __len__(self):
         return self.num_samples
+
+    def set_epoch(self, epoch):        
+        self.epoch = epoch
